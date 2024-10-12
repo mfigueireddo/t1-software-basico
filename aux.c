@@ -144,28 +144,17 @@ void utf8to32(FILE* entrada, FILE* saida){
 // Converte um arquivo UTF-32 para UTF-8
 void utf32to8(FILE* entrada, FILE* saida){
 
-    // Armazena o valor BOM
-    short bom;
-
-    // Armazena os inteiros lidos
-    unsigned int aux;
-
-    // Cópia de um bit do inteiro
-    char copy;
-
-    // Versão final do byte
-    unsigned char final[] = {0,0,0,0};
-
-    // Armazena a potência de 2 sendo trabalhada
-    int potencia;
+    short bom; // Armazena o valor BOM
+    unsigned int aux; // Armazena os inteiros lidos
+    unsigned char final[] = {0,0,0,0}; // Versão final do byte
 
     fread(&bom, sizeof(short), 1, entrada);
     //printf("0x%04x BOM\n\n", bom & 0xFFFF);
     
     while (!feof(entrada)){
-
         fread(&aux, sizeof(int), 1, entrada);
-        inverte_int(&aux);
+
+        inverte_int(&aux); // Inverte os bits do inteiro
 
         // 1 byte
         if (aux < 127){
@@ -173,22 +162,13 @@ void utf32to8(FILE* entrada, FILE* saida){
             //printf("1 byte\n");
             //printf("Obtido: "); int2bin(aux);
 
-            // Monta o byte
-            potencia = 0;
-
-            // Preenche os bits disponíveis
-            for(int i=0; i<7; i++){
-                copy = aux & 1;
-                aux = aux >> 1;
-                copy = copy << potencia++;
-                final[0] = final[0] | copy;
-                copy = 0;
-            }
+            // Aciona a função que formata o byte
+            utf8ByteFormat(&aux,&final[0],7);
 
             //printf("\nRetornado: "); char2bin(final[0]); printf("\n\n");
 
             fwrite(&final[0],sizeof(char),1,saida);
-            zera_vetor(final, 4);
+            zera_vetor(final, 4); // Zera os bytes auxiliares
         }
         
         // 2 bytes
@@ -197,37 +177,18 @@ void utf32to8(FILE* entrada, FILE* saida){
             //printf("2 bytes\n");
             //printf("Obtido: "); int2bin(aux);
 
-            // Monta o 2o byte
-            potencia = 0;
+            utf8ByteFormat(&aux,&final[1],6); // Aciona a função pra formatar o segundo byte
+            final[1] = final[1] | 128; // Preenche as flags do segundo byte
 
-            // Preenche os bits disponíveis
-            for(int i=0; i<6; i++){
-                copy = aux & 1;
-                aux = aux >> 1;
-                copy = copy << potencia++;
-                final[1] = final[1] | copy;
-            }
-
-            // Preenche as flags
-            final[1] = final[1] | 128;
-
-            // Monta o 1o byte
-            potencia = 0;
-            // Preenche os bits disponíveis
-            for(int i=0; i<5; i++){
-                copy = aux & 1;
-                aux = aux >> 1;
-                copy = copy << potencia++;
-                final[0] = final[0] | copy;
-            }
-            // Preenche as flags
-            final[0] = final[0] | 192;
+            utf8ByteFormat(&aux,&final[0],5); // Aciona a função pra formatar o primeiro byte
+            final[0] = final[0] | 192; // Preenche as flags do primeiro byte
 
             //printf("\nRetornado: "); char2bin(final[0]); char2bin(final[1]); printf("\n\n");
 
             fwrite(&final[0],sizeof(char),1,saida);
             fwrite(&final[1],sizeof(char),1,saida);
-            zera_vetor(final, 4);
+
+            zera_vetor(final, 4); // Zera os bytes auxiliares
         }
         
         // 3 bytes
@@ -236,51 +197,22 @@ void utf32to8(FILE* entrada, FILE* saida){
             //printf("3 bytes\n");
             //printf("Obtido: "); int2bin(aux);
 
-            // Monta o 3o byte
-            potencia = 0;
-            // Preenche os bits disponíveis
-            for(int i=0; i<6; i++){
-                copy = aux & 1;
-                aux = aux >> 1;
-                copy = copy << potencia++;
-                final[2] = final[2] | copy;
-                copy = 0;
-            }
-            // Preenche as flags
-            final[2] = final[2] | 128;
+            utf8ByteFormat(&aux,&final[2],6); // Aciona a função pra formatar o terceiro byte
+            final[2] = final[2] | 128; // Preenche as flags do terceiro byte
 
-            // Monta o 2o byte
-            potencia = 0;
-            // Preenche os bits disponíveis
-            for(int i=0; i<6; i++){
-                copy = aux & 1;
-                aux = aux >> 1;
-                copy = copy << potencia++;
-                final[1] = final[1] | copy;
-                copy = 0;
-            }
-            // Preenche as flags
-            final[1] = final[1] | 128;
+            utf8ByteFormat(&aux,&final[1],6); // Aciona a função pra formatar o segundo byte
+            final[1] = final[1] | 128; // Preenche as flags do segundo byte
 
-            // Monta o 1o byte
-            potencia = 0;
-            // Preenche os bits disponíveis
-            for(int i=0; i<4; i++){
-                copy = aux & 1;
-                aux = aux >> 1;
-                copy = copy << potencia++;
-                final[0] = final[0] | copy;
-                copy = 0;
-            }
-            // Preenche as flags
-            final[0] = final[0] | 224;
+            utf8ByteFormat(&aux,&final[0],4); // Aciona a função pra formatar o primeiro byte
+            final[0] = final[0] | 224; // Preenche as flags do primeiro byte
 
             //printf("\nRetornado: "); char2bin(final[0]); char2bin(final[1]); char2bin(final[2]); printf("\n\n");
 
             fwrite(&final[0],sizeof(char),1,saida);
             fwrite(&final[1],sizeof(char),1,saida);
             fwrite(&final[2],sizeof(char),1,saida);
-            zera_vetor(final, 4);
+
+            zera_vetor(final, 4); // Zera os bytes auxiliares
         }
         
         // 4 bytes
@@ -289,57 +221,17 @@ void utf32to8(FILE* entrada, FILE* saida){
             //printf("4 bytes\n");
             //printf("Obtido: "); int2bin(aux);
 
-            // Monta o 4o byte
-            potencia = 0;
-            // Preenche os bits disponíveis
-            for(int i=0; i<6; i++){
-                copy = aux & 1;
-                aux = aux >> 1;
-                copy = copy << potencia++;
-                final[3] = final[3] | copy;
-                copy = 0;
-            }
-            // Preenche as flags
-            final[3] = final[3] | 128;
+            utf8ByteFormat(&aux,&final[3],6); // Aciona a função pra formatar o terceiro byte
+            final[3] = final[3] | 128; // Preenche as flags do terceiro byte
 
-            // Monta o 3o byte
-            potencia = 0;
-            // Preenche os bits disponíveis
-            for(int i=0; i<6; i++){
-                copy = aux & 1;
-                aux = aux >> 1;
-                copy = copy << potencia++;
-                final[2] = final[2] | copy;
-                copy = 0;
-            }
-            // Preenche as flags
-            final[2] = final[2] | 128;
+            utf8ByteFormat(&aux,&final[2],6); // Aciona a função pra formatar o segundo byte
+            final[2] = final[2] | 128; // Preenche as flags do segundo byte
 
-            // Monta o 2o byte
-            potencia = 0;
-            // Preenche os bits disponíveis
-            for(int i=0; i<6; i++){
-                copy = aux & 1;
-                aux = aux >> 1;
-                copy = copy << potencia++;
-                final[1] = final[1] | copy;
-                copy = 0;
-            }
-            // Preenche as flags
-            final[1] = final[1] | 128;
+            utf8ByteFormat(&aux,&final[1],6); // Aciona a função pra formatar o primeiro byte
+            final[1] = final[1] | 128; // Preenche as flags do primeiro byte
 
-            // Monta o 1o byte
-            potencia = 0;
-            // Preenche os bits disponíveis
-            for(int i=0; i<4; i++){
-                copy = aux & 1;
-                aux = aux >> 1;
-                copy = copy << potencia++;
-                final[0] = final[0] | copy;
-                copy = 0;
-            }
-            // Preenche as flags
-            final[0] = final[0] | 240;
+            utf8ByteFormat(&aux,&final[0],4); // Aciona a função pra formatar o primeiro byte
+            final[0] = final[0] | 240; // Preenche as flags do primeiro byte
 
             //printf("\nRetornado: "); char2bin(final[0]); char2bin(final[1]); char2bin(final[2]); char2bin(final[3]); printf("\n\n");
 
@@ -347,19 +239,33 @@ void utf32to8(FILE* entrada, FILE* saida){
             fwrite(&final[1],sizeof(char),1,saida);
             fwrite(&final[2],sizeof(char),1,saida);
             fwrite(&final[3],sizeof(char),1,saida);
-            zera_vetor(final, 4);
+
+            zera_vetor(final, 4); // Zera os bytes auxiliares
         }
 
     }
 }
 
 // Move os 2 últimos bits de um char para os 2 1os de outro
-void move_between(unsigned char* byte1, unsigned char* byte2){
+void move_between(unsigned char *byte1, unsigned char *byte2){
     char copy;
     copy = *(byte1) & 3;
     if (copy == 1) *(byte2) = *(byte2) | 64; // joga 01 para o 2o byte
     else if (copy == 2) *(byte2) = *(byte2) | 128; // joga 10 para o 2o byte
     else if (copy == 3) *(byte2) = *(byte2) | 192; // joga 11 para o 2o byte
+}
+
+// Monta um byte nas com base na quantidade de bits disponíveis pra uso
+void utf8ByteFormat(unsigned int *num, unsigned char *destiny, int capacity){
+    unsigned char copy = 0;
+    int potencia = 0;
+    for(int i=0; i<capacity; i++){
+        copy = *num & 1;
+        *num = *num >> 1;
+        copy = copy << potencia++;
+        *destiny = *destiny | copy;
+        copy = 0;
+    }
 }
 
 // Exibe 8 bits
@@ -387,7 +293,7 @@ void int2bin(int n) {
 }
 
 // Inverte os bits de um número inteiro
-void inverte_int(unsigned int* original){
+void inverte_int(unsigned int *original){
 
     // Cópia do inteiro original
     unsigned int copia = *(original);
@@ -409,7 +315,7 @@ void inverte_int(unsigned int* original){
 }
 
 // Zera um vetor
-void zera_vetor(unsigned char* vetor, int tam){
+void zera_vetor(unsigned char *vetor, int tam){
     for(int i=0; i<tam; i++){
         vetor[i] = 0;
     }
