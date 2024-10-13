@@ -5,27 +5,19 @@
 
 int main(void){
 
-    // Arquivo de entrada em UTF-8
     FILE* ent8 = fopen("utf8.dat","rb");
-    if (ent8 == NULL) exit(1);
-    // Arquivo de saída em UTF-32
     FILE* saida32 = fopen("ret32.dat","wb");
+    if (ent8 == NULL) exit(1);
     if (saida32 == NULL) exit(1);
-    // Chamada de função
     utf8to32(ent8,saida32);
-    // Fechamento de arquivos
     fclose(ent8);
     fclose(saida32);
 
-    // Arquivo de entrada em UTF-32
     FILE* ent32 = fopen("utf32.dat","rb");
-    if (ent32 == NULL) exit(1);
-    // Arquivo de saída em UTF-8
     FILE* saida8 = fopen("ret8.dat","wb");
+    if (ent32 == NULL) exit(1);
     if (saida8 == NULL) exit(1);
-    // Chamada de função
     utf32to8(ent32,saida8);
-    // Fechamento de arquivos
     fclose(ent32);
     fclose(saida8);
 

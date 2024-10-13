@@ -44,36 +44,15 @@ void dumpUtf8(FILE* arq){
 
 void dumpUtf32(FILE* arq){
 
-    short bom;
+    unsigned int bom;
     unsigned int aux;
 
-    fread(&bom, sizeof(short), 1, arq);
-    printf("\n0x%04x BOM\n\n", bom & 0xFFFF);
+    fread(&bom, sizeof(int), 1, arq);
+    printf("BOM: "); int2bin(bom); printf("\n\n");
 
     while(!feof(arq)){
         fread(&aux, sizeof(int), 1, arq);
-        //inverte_int(&aux);
-        if (aux < 127) printf("1 byte\n");
-        else if (aux < 2047 && aux > 127 ) printf("2 bytes\n");
-        else if (aux < 65535 && aux > 2047) printf("3 bytes\n");
-        else if (aux < 1114111 && aux > 65535) printf("4 bytes\n");
-        int2bin(aux);
-        printf("\n\n");
-    }
-
-}
-
-void dumpUtf32Inv(FILE* arq){
-
-    short bom;
-    unsigned int aux;
-
-    fread(&bom, sizeof(short), 1, arq);
-    printf("\n0x%04x BOM\n\n", bom & 0xFFFF);
-
-    while(!feof(arq)){
-        fread(&aux, sizeof(int), 1, arq);
-        inverte_int(&aux);
+        if (bom == 0xFFFE0000) little2big(&aux);
         if (aux < 127) printf("1 byte\n");
         else if (aux < 2047 && aux > 127 ) printf("2 bytes\n");
         else if (aux < 65535 && aux > 2047) printf("3 bytes\n");
@@ -98,23 +77,15 @@ void int2bin(unsigned int n) {
     }
 }
 
-void inverte_int(unsigned int *original){
+void little2big(unsigned int *num) {
+    // Reorganizando os bytes do número
+    unsigned int byte0, byte1, byte2, byte3;
+    unsigned int value = *num;  // Obtém o valor original do ponteiro
 
-    // Cópia do inteiro original
-    unsigned int copia = *(original);
+    byte0 = (value & 0x000000FF) << 24;  // Move o byte 0 para a posição 3
+    byte1 = (value & 0x0000FF00) << 8;   // Move o byte 1 para a posição 2
+    byte2 = (value & 0x00FF0000) >> 8;   // Move o byte 2 para a posição 1
+    byte3 = (value & 0xFF000000) >> 24;  // Move o byte 3 para a posição 0
 
-    // Armazena 1 bit do original
-    unsigned char aux;
-
-    // Inteiro invertido
-    unsigned int final;
-
-    for(int i=0; i<32; i++){
-        aux = copia & 1;
-        copia = copia >> 1;
-        final = final | aux;
-        final = final << 1;
-    }
-
-    *(original) = final;
+    *num = byte0 | byte1 | byte2 | byte3; // Atualiza o valor original com a nova ordem de bytes
 }
