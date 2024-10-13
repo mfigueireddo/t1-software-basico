@@ -2,6 +2,8 @@
     "files.associations": {
         "stdlib.h": "c",
         "auxtests.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "aux.h": "c",
+        "converteutf832.h": "c"
     }
 }

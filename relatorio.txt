@@ -1,0 +1,1 @@
+Integrantes: Matheus Moreira da Silva Figueiredo 2320813 3WA. A aplicação está 100% funcional. A única observação a ser feita é que, no módulo de testes, o dump do UTF-32 será feito sempre em Big Endian para melhor visualização dos resultados. 

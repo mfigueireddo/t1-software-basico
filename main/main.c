@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "aux.h"
+#include "converteutf832.h"
 
 int main(void){
 
@@ -9,7 +9,7 @@ int main(void){
     FILE* saida32 = fopen("ret32.dat","wb");
     if (ent8 == NULL) exit(1);
     if (saida32 == NULL) exit(1);
-    utf8to32(ent8,saida32);
+    convUtf8p32(ent8,saida32);
     fclose(ent8);
     fclose(saida32);
 
@@ -17,7 +17,7 @@ int main(void){
     FILE* saida8 = fopen("ret8.dat","wb");
     if (ent32 == NULL) exit(1);
     if (saida8 == NULL) exit(1);
-    utf32to8(ent32,saida8);
+    convUtf32p8(ent32,saida8);
     fclose(ent32);
     fclose(saida8);
 
